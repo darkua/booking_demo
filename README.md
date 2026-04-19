@@ -1,4 +1,4 @@
-# Booksy demo
+# Booking demo
 
 Local development guide for the Nest API (`api/`), Vue dashboard (`web/`), and optional MCP bridge (`mcp/`).
 

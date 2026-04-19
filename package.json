@@ -1,5 +1,5 @@
 {
-  "name": "booksy_demo",
+  "name": "booking_demo",
   "private": true,
   "scripts": {
     "dev:api": "cd api && npm run start:dev",
