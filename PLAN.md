@@ -1,15 +1,11 @@
-# AltaRise Beauty Salon – booking demo plan
+# AltaRise Beauty Salon – plans
 
-This file is a copy of the development plan for convenience. The canonical plan may also live under `.cursor/plans/`.
+**Canonical plan files for this repository** live under **[`.agent/plans/`](.agent/plans/)** (versioned with the repo).
 
-See the repository implementation: `api/` (NestJS), `web/` (Vue 3), `state/` (JSON files), `mcp/` (stdio MCP → HTTP API).
+| Document | Description |
+| -------- | ----------- |
+| [`.agent/plans/README.md`](.agent/plans/README.md) | Index of local plans |
+| [`.agent/plans/altarise_booking_demo.md`](.agent/plans/altarise_booking_demo.md) | Original demo architecture (Nest + Vue + Twilio + MCP) |
+| [`.agent/plans/booking_feedback_follow-up.md`](.agent/plans/booking_feedback_follow-up.md) | Follow-up work: PATCH, logging, 3-day calendar, phone/name model, Twilio confirmation |
 
-## Summary
-
-- **Public page**: QR + WhatsApp sandbox instructions (`qr_code.svg`).
-- **Admin**: Login → dashboard: calendar, WhatsApp threads, 24h session rule, template reminders, admin OpenAI chat with booking tools.
-- **API**: NestJS + Swagger at `/docs`, per-file state under `state/chats/*.json` and `state/bookings/*.json`.
-- **Twilio**: Webhook with mandatory signature validation (`TWILIO_WEBHOOK_BASE_URL` + path).
-- **OpenAI**: `gpt-4o-mini`, tools call Nest services in-process; MCP server calls REST with `MCP_API_KEY`.
-
-Full detail: see `.cursor/plans/altarise_booking_demo_b6a50711.plan.md` if present.
+Implementation layout: [`api/`](api/) (NestJS), [`web/`](web/) (Vue 3), [`state/`](state/) (JSON files), [`mcp/`](mcp/) (stdio MCP → HTTP API).
