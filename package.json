@@ -1,0 +1,11 @@
+{
+  "name": "booksy_demo",
+  "private": true,
+  "scripts": {
+    "dev:api": "cd api && npm run start:dev",
+    "dev:web": "cd web && npm run dev",
+    "build:api": "cd api && npm run build",
+    "build:web": "cd web && npm run build",
+    "mcp": "cd mcp && npm start"
+  }
+}
