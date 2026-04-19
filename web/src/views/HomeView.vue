@@ -5,24 +5,20 @@
   <div class="page">
     <header class="hero">
       <h1>AltaRise Beauty Salon</h1>
-      <p class="lead">
-        Demo: connect on WhatsApp to book services. Scan the code or open the sandbox link on your phone.
-      </p>
     </header>
     <section class="card">
-      <h2>Join our WhatsApp</h2>
       <div class="qr-wrap">
         <img src="/qr_code.svg" alt="WhatsApp QR" width="200" height="200" />
       </div>
-      <ol class="steps">
-        <li>Open WhatsApp on your phone.</li>
-        <li>Send the sandbox join code from Twilio to the sandbox number, or scan the QR if it encodes that link.</li>
-        <li>Message us to talk to the booking assistant.</li>
+      <ol class="subtitle-list">
+        <li>
+          Scan the QR code and send the twelve-character code to add AltaRise Twilio WhatsApp Sandbox (simulation of Provider WBA).
+        </li>
+        <li>
+          Talk with our AI agent: try asking about services available and scheduling a booking.
+        </li>
       </ol>
     </section>
-    <p class="admin-link">
-      <router-link to="/login">Staff login</router-link>
-    </p>
   </div>
 </template>
 
@@ -31,36 +27,41 @@
   max-width: 640px;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
+  background: #fff;
+}
+.hero {
+  text-align: center;
 }
 .hero h1 {
   font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-}
-.lead {
-  color: #444;
-  line-height: 1.5;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+  color: #111;
 }
 .card {
-  margin-top: 2rem;
+  margin-top: 0.5rem;
   padding: 1.5rem;
   border-radius: 12px;
-  background: #fafafa;
-  border: 1px solid #eee;
+  background: rgba(15, 23, 42, 0.07);
+  border: 1px solid rgba(15, 23, 42, 0.12);
 }
 .qr-wrap {
   display: flex;
   justify-content: center;
-  margin: 1rem 0;
+  margin-bottom: 1.25rem;
 }
-.steps {
-  padding-left: 1.25rem;
-  line-height: 1.6;
+.subtitle-list {
+  margin: 0;
+  padding-left: 1.35rem;
+  text-align: left;
+  line-height: 1.55;
+  font-size: 0.95rem;
+  color: #374151;
 }
-.admin-link {
-  margin-top: 2rem;
-  text-align: center;
+.subtitle-list li {
+  margin-bottom: 0.65rem;
 }
-a {
-  color: #2563eb;
+.subtitle-list li:last-child {
+  margin-bottom: 0;
 }
 </style>

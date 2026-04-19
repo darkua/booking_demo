@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { formatTemplateVars } from '../bookings/booking-window.util';
 import { BookingsService } from '../bookings/bookings.service';
 import { ConfigService } from '@nestjs/config';
 import { ChatsService } from './chats.service';
@@ -69,12 +70,11 @@ export class ChatsController {
     let v2 = dto.var2;
     if (dto.bookingId) {
       const b = await this.bookings.getById(dto.bookingId);
-      if (b && b.clientId === id) {
-        const d = new Date(b.start);
-        v1 = v1 ?? `${d.getMonth() + 1}/${d.getDate()}`;
-        v2 =
-          v2 ??
-          d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      if (b && b.phoneE164 === chat.phoneE164) {
+        const zone = this.config.get<string>('booking.timezone') ?? 'Europe/Berlin';
+        const vars = formatTemplateVars(b.start, zone);
+        v1 = v1 ?? vars['1'];
+        v2 = v2 ?? vars['2'];
       }
     }
     if (!v1 || !v2) {

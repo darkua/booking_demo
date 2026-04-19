@@ -25,6 +25,9 @@ export class StateService implements OnModuleInit {
   }
 
   async atomicWriteJson(filePath: string, data: unknown) {
+    if (this.config.get<string>('debugState') === 'true') {
+      this.logger.debug(`state write: ${filePath}`);
+    }
     const dir = path.dirname(filePath);
     await fs.mkdir(dir, { recursive: true });
     const base = path.basename(filePath);
@@ -34,6 +37,9 @@ export class StateService implements OnModuleInit {
   }
 
   async readJsonFile<T>(filePath: string): Promise<T | null> {
+    if (this.config.get<string>('debugState') === 'true') {
+      this.logger.debug(`state read: ${filePath}`);
+    }
     try {
       const raw = await fs.readFile(filePath, 'utf8');
       return JSON.parse(raw) as T;

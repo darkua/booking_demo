@@ -63,22 +63,43 @@ server.registerTool(
 server.registerTool(
   'create_booking',
   {
-    description: 'Create a one-hour appointment.',
+    description: 'Create a one-hour appointment (next 3 days only; server-enforced).',
     inputSchema: z.object({
-      clientId: z.string(),
+      phoneE164: z.string(),
+      clientName: z.string(),
       start: z.string(),
-      services: z.array(z.string()),
+      services: z.array(z.string()).min(1),
     }),
   },
   async (args) => {
     const data = await apiFetch('/mcp/bookings', {
       method: 'POST',
       body: JSON.stringify({
-        clientId: args.clientId,
+        phoneE164: args.phoneE164,
+        clientName: args.clientName,
         start: args.start,
         services: args.services,
         durationMinutes: 60,
       }),
+    });
+    return {
+      content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+    };
+  },
+);
+
+server.registerTool(
+  'cancel_booking',
+  {
+    description:
+      'Cancel an appointment by id (soft cancel; slot freed).',
+    inputSchema: z.object({
+      bookingId: z.string(),
+    }),
+  },
+  async (args) => {
+    const data = await apiFetch(`/mcp/bookings/${encodeURIComponent(args.bookingId)}/cancel`, {
+      method: 'POST',
     });
     return {
       content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],

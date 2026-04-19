@@ -20,4 +20,13 @@ export default () => ({
   appointmentTemplate: {
     contentSid: process.env.TWILIO_APPOINTMENT_TEMPLATE_SID ?? '',
   },
+  booking: {
+    timezone: process.env.BOOKING_TIMEZONE ?? 'Europe/Berlin',
+  },
+  /** Max prior WhatsApp turns (user+assistant pairs count as separate messages) sent to OpenAI */
+  whatsappHistoryMaxMessages: parseInt(
+    process.env.WHATSAPP_HISTORY_MAX_MESSAGES ?? '80',
+    10,
+  ),
+  debugState: process.env.DEBUG_STATE ?? '',
 });

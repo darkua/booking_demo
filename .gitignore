@@ -1,8 +1,12 @@
 /node_modules
+/api/node_modules
+/api/dist
+/web/node_modules
+/web/dist
+/mcp/node_modules
+/mcp/dist
 .env
 /state/*.json
 /state/chats/
 /state/bookings/
 !state/.gitkeep
-api/dist
-web/dist

@@ -2,10 +2,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
+import { HttpLoggingInterceptor } from './common/http-logging.interceptor';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalInterceptors(new HttpLoggingInterceptor());
   app.use(express.urlencoded({ extended: false }));
   app.enableCors({ origin: true, credentials: true });
   app.useGlobalPipes(

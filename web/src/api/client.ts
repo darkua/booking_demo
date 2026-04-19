@@ -22,10 +22,13 @@ export async function login(username: string, password: string) {
 
 export type Booking = {
   id: string;
-  clientId: string;
+  phoneE164: string;
+  clientName: string;
   start: string;
   services: string[];
   durationMinutes: number;
+  confirmed: boolean;
+  canceled: boolean;
 };
 
 export type Chat = {
@@ -41,10 +44,34 @@ export type Chat = {
   }[];
 };
 
-export async function fetchBookingsMonth(year: number, month: number) {
+export async function fetchBookingsRange(fromIso: string, toIso: string) {
   const { data } = await api.get<Booking[]>('/bookings', {
-    params: { year, month },
+    params: { from: fromIso, to: toIso },
   });
+  return data;
+}
+
+/** Uses server salon timezone (BOOKING_TIMEZONE) for the next 3 calendar days */
+export async function fetchBookingsNextThreeDays(options?: { includeCanceled?: boolean }) {
+  const { data } = await api.get<Booking[]>('/bookings', {
+    params: {
+      window: 'next3days',
+      ...(options?.includeCanceled ? { includeCanceled: 'true' } : {}),
+    },
+  });
+  return data;
+}
+
+export async function cancelBooking(id: string) {
+  const { data } = await api.post<Booking>(`/bookings/${encodeURIComponent(id)}/cancel`);
+  return data;
+}
+
+export async function patchBooking(
+  id: string,
+  body: Partial<Pick<Booking, 'confirmed' | 'start' | 'services' | 'clientName'>>,
+) {
+  const { data } = await api.patch<Booking>(`/bookings/${id}`, body);
   return data;
 }
 
@@ -76,3 +103,4 @@ export async function adminAiChat(messages: Record<string, unknown>[]) {
   );
   return data.messages;
 }
+

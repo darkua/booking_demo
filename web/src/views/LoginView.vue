@@ -53,6 +53,12 @@ async function submit() {
   max-width: 400px;
   margin: 3rem auto;
   padding: 1rem;
+  background: #fff;
+}
+.page h1 {
+  font-size: 1.35rem;
+  margin: 0 0 1.25rem;
+  font-weight: 600;
 }
 .card {
   display: flex;
@@ -60,8 +66,8 @@ async function submit() {
   gap: 1rem;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #e5e5e5;
-  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.07);
 }
 label {
   display: flex;

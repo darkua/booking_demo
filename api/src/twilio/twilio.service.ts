@@ -29,12 +29,20 @@ export class TwilioService {
       this.logger.warn('Twilio client not configured; skip send');
       return { sid: 'mock', status: 'skipped' as const };
     }
-    const msg = await this.client.messages.create({
-      from: this.whatsappFrom,
-      to: this.ensureToAddress(to),
-      body,
-    });
-    return { sid: msg.sid, status: 'sent' as const };
+    try {
+      const msg = await this.client.messages.create({
+        from: this.whatsappFrom,
+        to: this.ensureToAddress(to),
+        body,
+      });
+      return { sid: msg.sid, status: 'sent' as const };
+    } catch (err: unknown) {
+      const e = err as { code?: number; message?: string; moreInfo?: string };
+      this.logger.error(
+        `Twilio sendSessionMessage failed: ${e.code} ${e.message} ${e.moreInfo ?? ''}`,
+      );
+      throw err;
+    }
   }
 
   async sendTemplate(
@@ -46,12 +54,24 @@ export class TwilioService {
       this.logger.warn('Twilio client not configured; skip template');
       return { sid: 'mock', status: 'skipped' as const };
     }
-    const msg = await this.client.messages.create({
-      from: this.whatsappFrom,
-      to: this.ensureToAddress(to),
-      contentSid,
-      contentVariables: JSON.stringify(contentVariables),
-    });
-    return { sid: msg.sid, status: 'sent' as const };
+    const payload = JSON.stringify(contentVariables);
+    this.logger.log(
+      `Twilio Content template: to=${this.ensureToAddress(to)} contentSid=${contentSid} ContentVariables=${payload}`,
+    );
+    try {
+      const msg = await this.client.messages.create({
+        from: this.whatsappFrom,
+        to: this.ensureToAddress(to),
+        contentSid,
+        contentVariables: payload,
+      });
+      return { sid: msg.sid, status: 'sent' as const };
+    } catch (err: unknown) {
+      const e = err as { code?: number; message?: string; moreInfo?: string };
+      this.logger.error(
+        `Twilio sendTemplate failed: ${e.code} ${e.message} ${e.moreInfo ?? ''}`,
+      );
+      throw err;
+    }
   }
 }

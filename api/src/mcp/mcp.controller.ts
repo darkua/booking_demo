@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -34,10 +35,17 @@ export class McpController {
   @Post('bookings')
   create(@Body() dto: CreateBookingDto) {
     return this.bookings.create({
-      clientId: dto.clientId,
+      phoneE164: dto.phoneE164,
+      clientName: dto.clientName,
       start: dto.start,
       services: dto.services,
       durationMinutes: dto.durationMinutes,
+      sendConfirmationTemplate: dto.sendConfirmationTemplate,
     });
+  }
+
+  @Post('bookings/:id/cancel')
+  cancel(@Param('id') id: string) {
+    return this.bookings.cancel(id);
   }
 }

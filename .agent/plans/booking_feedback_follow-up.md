@@ -4,19 +4,19 @@ overview: Add PATCH for bookings (including `confirmed`), migrate booking identi
 todos:
   - id: model-patch
     content: Extend BookingFile (phoneE164, clientName, confirmed); PATCH /bookings/:id; migrate/resolve old clientId; update DTOs + Swagger
-    status: pending
+    status: completed
   - id: window-tools
     content: Enforce 3-day timezone window in create/update; update OpenAI tools + prompts; pass phone/name context into tool execution
-    status: pending
+    status: completed
   - id: twilio-confirm
     content: Send confirmation template after create; log Twilio errors; webhook handler to set confirmed from reply/button
-    status: pending
+    status: completed
   - id: ui-calendar
     content: Replace month grid with 3-day hourly view; GET bookings by range; green vs yellow by confirmed
-    status: pending
+    status: completed
   - id: logging
     content: Add HTTP request logging + optional DEBUG_STATE file-path logs
-    status: pending
+    status: completed
 isProject: true
 ---
 
