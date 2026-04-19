@@ -73,6 +73,38 @@ From the repo root:
 
 To preview the built SPA locally: `cd web && npm run preview`.
 
+## Docker (API)
+
+Build the image from the **repository root** (build context is `api/`):
+
+```bash
+docker build -t booksy-api:latest -f api/Dockerfile api
+```
+
+Or from `api/`:
+
+```bash
+cd api
+docker build -t booksy-api:latest .
+```
+
+The image sets a default **`STATE_ROOT=/app/state`** in the Dockerfile and creates that directory (writable by the `node` user). Persist data across container restarts by mounting a volume, for example:
+
+```bash
+docker run --rm -p 3000:3000 \
+  -v booksy-state:/app/state \
+  --env-file .env \
+  booksy-api:latest
+```
+
+If your env file includes **`STATE_ROOT=../state`** (meant for local dev from `api/`), the API now maps that to **`/app/state`** inside the container so it does not try to write to **`/state`**. You can still set **`STATE_ROOT=/app/state`** explicitly.
+
+Map the host port to whatever **`PORT`** you set in the env file (default **3000**), e.g. `-p 4000:4000` only if **`PORT=4000`**.
+
+If you prefer not to use an env file, pass variables with `-e` (see [`.env.example`](.env.example)). At minimum you typically need **`JWT_SECRET`**, **`ADMIN_USERNAME`**, **`ADMIN_PASSWORD`**, and any integrations (**`TWILIO_*`**, **`OPENAI_API_KEY`**, **`MCP_API_KEY`**, etc.) for full behavior.
+
+**Note:** Runtime configuration is **not** copied from your repo `.env` into the image; inject env vars or secrets at `docker run` / orchestrator (Cloud Run, Kubernetes, etc.).
+
 ## Troubleshooting
 
 - **`STATE_ROOT` / missing data** — Ensure `STATE_ROOT` in `.env` resolves correctly for your current working directory when starting the API (typically run `npm run dev:api` from the repo root so `api/` is the cwd for the Nest process and `../state` matches the example).

@@ -1,8 +1,25 @@
 import * as path from 'path';
 
+/**
+ * Resolves STATE_ROOT. Reuses host `.env` with `STATE_ROOT=../state` inside the API
+ * image: cwd is e.g. `/app`, so `../state` becomes `/state` (EACCES). Map that to `./state`
+ * under cwd instead.
+ */
+function resolveStateRoot(raw: string | undefined): string {
+  if (raw === undefined || raw.trim() === '') {
+    return path.resolve(path.join(process.cwd(), '..', 'state'));
+  }
+  const trimmed = raw.trim();
+  const resolved = path.resolve(process.cwd(), trimmed);
+  if (trimmed === '../state' && resolved === '/state') {
+    return path.resolve(process.cwd(), 'state');
+  }
+  return resolved;
+}
+
 export default () => ({
   port: parseInt(process.env.PORT ?? '3000', 10),
-  stateRoot: process.env.STATE_ROOT ?? path.join(process.cwd(), '..', 'state'),
+  stateRoot: resolveStateRoot(process.env.STATE_ROOT),
   jwtSecret: process.env.JWT_SECRET ?? 'dev-insecure-change-me',
   adminUsername: process.env.ADMIN_USERNAME ?? 'altarise',
   adminPassword: process.env.ADMIN_PASSWORD ?? 'Password123!',
