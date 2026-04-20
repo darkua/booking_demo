@@ -101,7 +101,7 @@ If your env file includes **`STATE_ROOT=../state`** (meant for local dev from `a
 
 Map the host port to whatever **`PORT`** you set in the env file (default **3000**), e.g. `-p 4000:4000` only if **`PORT=4000`**.
 
-If you prefer not to use an env file, pass variables with `-e` (see [`.env.example`](.env.example)). At minimum you typically need **`JWT_SECRET`**, **`ADMIN_USERNAME`**, **`ADMIN_PASSWORD`**, and any integrations (**`TWILIO_*`**, **`OPENAI_API_KEY`**, **`MCP_API_KEY`**, etc.) for full behavior.
+If you prefer not to use an env file, pass variables with `-e` (see [`.env.example`](.env.example)). At minimum you typically need **`JWT_SECRET`**, **`ADMIN_USERNAME`**, **`ADMIN_PASSWORD`**, and any integrations (**`WEBHOOK_VERIFY_TOKEN`**, **`TWILIO_*`**, **`OPENAI_API_KEY`**, **`MCP_API_KEY`**, etc.) for full behavior.
 
 **Note:** Runtime configuration is **not** copied from your repo `.env` into the image; inject env vars or secrets at `docker run` / orchestrator (Cloud Run, Kubernetes, etc.).
 

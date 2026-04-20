@@ -30,6 +30,9 @@ export default () => ({
     webhookBaseUrl: process.env.TWILIO_WEBHOOK_BASE_URL ?? '',
     whatsappFrom: process.env.TWILIO_WHATSAPP_FROM ?? 'whatsapp:+14155238886',
   },
+  webhook: {
+    verifyToken: process.env.WEBHOOK_VERIFY_TOKEN ?? '',
+  },
   openai: {
     apiKey: process.env.OPENAI_API_KEY ?? '',
     model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',

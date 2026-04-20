@@ -1,9 +1,17 @@
-import { Body, Controller, Header, Logger, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Logger,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { BookingsService } from '../bookings/bookings.service';
-import { ChatsService, phoneFromTwilio } from '../chats/chats.service';
+import { ChatsService, phoneFromWhatsapp } from '../chats/chats.service';
 import { OpenaiService } from '../openai/openai.service';
-import { TwilioSignatureGuard } from './twilio-signature.guard';
 import { TwilioService } from './twilio.service';
 
 function isConfirmationText(raw: string): boolean {
@@ -18,34 +26,81 @@ function isConfirmationText(raw: string): boolean {
   );
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
+}
+
+function firstFromArray(value: unknown): Record<string, unknown> | null {
+  if (!Array.isArray(value) || value.length === 0) return null;
+  return asRecord(value[0]);
+}
+
 @ApiExcludeController()
 @Controller('webhook')
 export class WhatsappWebhookController {
   private readonly logger = new Logger(WhatsappWebhookController.name);
 
   constructor(
+    private readonly config: ConfigService,
     private readonly chats: ChatsService,
     private readonly openai: OpenaiService,
     private readonly twilio: TwilioService,
     private readonly bookings: BookingsService,
   ) {}
 
-  @Post('whatsapp')
-  @UseGuards(TwilioSignatureGuard)
-  @Header('Content-Type', 'text/xml')
-  async inbound(@Body() body: Record<string, string>) {
-    const From = body.From ?? '';
-    const text =
-      (body.Body ?? body.ButtonText ?? body.ListItem ?? body.ButtonPayload ?? '').trim();
-    const messageSid = body.MessageSid;
-    const phoneE164 = phoneFromTwilio(From);
+  @Get()
+  verify(
+    @Query('hub.verify_token') verifyToken: string,
+    @Query('hub.challenge') challenge: string,
+  ) {
+    const expected = this.config.get<string>('webhook.verifyToken');
+    if (!expected) {
+      throw new ForbiddenException('WEBHOOK_VERIFY_TOKEN not configured');
+    }
+    if (verifyToken !== expected) {
+      throw new ForbiddenException('Invalid webhook verification token');
+    }
+    const parsed = parseInt(challenge, 10);
+    if (Number.isNaN(parsed)) {
+      throw new ForbiddenException('Invalid hub.challenge');
+    }
+    return parsed;
+  }
+
+  @Post()
+  async inbound(@Body() body: Record<string, unknown>) {
+    const twilioLikeFrom = String(body.From ?? '');
+    const twilioLikeText = String(
+      body.Body ?? body.ButtonText ?? body.ListItem ?? body.ButtonPayload ?? '',
+    );
+    const twilioLikeSid = body.MessageSid ? String(body.MessageSid) : undefined;
+
+    const entry0 = firstFromArray(body.entry);
+    const change0 = firstFromArray(entry0?.changes);
+    const value =
+      asRecord(change0?.value) ??
+      (body.object === 'whatsapp_business_account' ? asRecord(body) : null);
+    const message = firstFromArray(value?.messages);
+    const messageText = asRecord(message?.text);
+    const metaFrom = message?.from ? String(message.from) : '';
+    const metaText = messageText?.body ? String(messageText.body) : '';
+    const metaMessageId = message?.id ? String(message.id) : undefined;
+
+    const from = (metaFrom || twilioLikeFrom).trim();
+    const text = (metaText || twilioLikeText).trim();
+    const messageSid = metaMessageId || twilioLikeSid;
+    if (!from) {
+      this.logger.warn('Inbound webhook ignored: no sender found');
+      return { status: 'ignored' as const };
+    }
+    const phoneE164 = phoneFromWhatsapp(from);
 
     this.logger.log(
       `Inbound WhatsApp messageSid=${messageSid ?? 'n/a'} from=${phoneE164} len=${text.length}`,
     );
 
     const chat = await this.chats.upsertFromInbound(
-      From,
+      from,
       text || '(interactive)',
       messageSid,
     );
@@ -64,7 +119,7 @@ export class WhatsappWebhookController {
             'Your appointment is confirmed.',
             send.sid,
           );
-          return '<Response></Response>';
+          return { status: 'ok' as const };
         }
         try {
           const nudge = await this.twilio.sendSessionMessage(
@@ -79,7 +134,7 @@ export class WhatsappWebhookController {
         } catch (e) {
           this.logger.warn(`Nudge after failed confirm: ${e instanceof Error ? e.message : e}`);
         }
-        return '<Response></Response>';
+        return { status: 'ok' as const };
       } catch (err) {
         this.logger.warn(`Confirm handler: ${err instanceof Error ? err.message : err}`);
       }
@@ -99,6 +154,6 @@ export class WhatsappWebhookController {
     } catch (err) {
       this.logger.error('WhatsApp AI reply failed', err);
     }
-    return '<Response></Response>';
+    return { status: 'ok' as const };
   }
 }

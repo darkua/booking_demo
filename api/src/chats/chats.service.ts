@@ -4,9 +4,12 @@ import * as path from 'path';
 import { StateService } from '../state/state.service';
 import type { ChatFile, ChatMessage } from './chat.types';
 
-export function phoneFromTwilio(from: string): string {
+export function phoneFromWhatsapp(from: string): string {
   return from.replace(/^whatsapp:/i, '').trim();
 }
+
+// Backward-compatible alias while integrations are migrating.
+export const phoneFromTwilio = phoneFromWhatsapp;
 
 export function chatIdFromPhone(phoneE164: string): string {
   return Buffer.from(phoneE164, 'utf8').toString('base64url');
@@ -25,7 +28,7 @@ export class ChatsService {
   }
 
   async upsertFromInbound(from: string, body: string, twilioSid?: string): Promise<ChatFile> {
-    const phoneE164 = phoneFromTwilio(from);
+    const phoneE164 = phoneFromWhatsapp(from);
     const id = chatIdFromPhone(phoneE164);
     const file = this.chatFilePath(id);
     let chat = await this.state.readJsonFile<ChatFile>(file);
