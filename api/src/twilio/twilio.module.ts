@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TwilioService } from './twilio.service';
+import { MetaWhatsAppService } from './meta-whatsapp.service';
 
 @Module({
-  providers: [TwilioService],
-  exports: [TwilioService],
+  providers: [MetaWhatsAppService],
+  exports: [MetaWhatsAppService],
 })
 export class TwilioModule {}

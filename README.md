@@ -30,7 +30,7 @@ Skip `mcp` if you do not need the MCP stdio server.
    - **`ADMIN_USERNAME` / `ADMIN_PASSWORD`** — Used for web login.
    - **`MCP_API_KEY`** — Required if you run the MCP server; must match between API and MCP.
 
-3. **Twilio** and **OpenAI** variables are optional for browsing the dashboard locally; WhatsApp and AI features need them configured.
+3. **Meta WhatsApp** and **OpenAI** variables are optional for browsing the dashboard locally; WhatsApp and AI features need them configured.
 
 4. **Web (optional)** — Create `web/.env` if you want to override defaults:
 
@@ -101,7 +101,7 @@ If your env file includes **`STATE_ROOT=../state`** (meant for local dev from `a
 
 Map the host port to whatever **`PORT`** you set in the env file (default **3000**), e.g. `-p 4000:4000` only if **`PORT=4000`**.
 
-If you prefer not to use an env file, pass variables with `-e` (see [`.env.example`](.env.example)). At minimum you typically need **`JWT_SECRET`**, **`ADMIN_USERNAME`**, **`ADMIN_PASSWORD`**, and any integrations (**`WEBHOOK_VERIFY_TOKEN`**, **`TWILIO_*`**, **`OPENAI_API_KEY`**, **`MCP_API_KEY`**, etc.) for full behavior.
+If you prefer not to use an env file, pass variables with `-e` (see [`.env.example`](.env.example)). At minimum you typically need **`JWT_SECRET`**, **`ADMIN_USERNAME`**, **`ADMIN_PASSWORD`**, and any integrations (**`WEBHOOK_VERIFY_TOKEN`**, **`WA_ACCESS_TOKEN`**, **`PHONE_NUMBER_ID`**, **`OPENAI_API_KEY`**, **`MCP_API_KEY`**, etc.) for full behavior.
 
 **Note:** Runtime configuration is **not** copied from your repo `.env` into the image; inject env vars or secrets at `docker run` / orchestrator (Cloud Run, Kubernetes, etc.).
 

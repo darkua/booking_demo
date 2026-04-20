@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
 import { StateService } from '../state/state.service';
-import { TwilioService } from '../twilio/twilio.service';
+import { MetaWhatsAppService } from '../twilio/meta-whatsapp.service';
 import type { BookingFile } from './booking.types';
 import {
   bookingTimeZone,
@@ -25,7 +25,7 @@ export class BookingsService {
   constructor(
     private readonly state: StateService,
     private readonly config: ConfigService,
-    private readonly twilio: TwilioService,
+    private readonly whatsapp: MetaWhatsAppService,
   ) {}
 
   private tz() {
@@ -176,16 +176,16 @@ export class BookingsService {
   private async sendConfirmationTemplate(booking: BookingFile) {
     const contentSid = this.config.get<string>('appointmentTemplate.contentSid');
     if (!contentSid) {
-      this.logger.warn('TWILIO_APPOINTMENT_TEMPLATE_SID not set; skip confirmation template');
+      this.logger.warn('WA_APPOINTMENT_TEMPLATE_NAME not set; skip confirmation template');
       return;
     }
     const vars = formatTemplateVars(booking.start, this.tz());
     try {
-      await this.twilio.sendTemplate(booking.phoneE164, contentSid, vars);
+      await this.whatsapp.sendTemplate(booking.phoneE164, contentSid, vars);
       this.logger.log(`Confirmation template sent for booking ${booking.id}`);
     } catch (err: unknown) {
       this.logger.error(
-        `Twilio template failed for booking ${booking.id}: ${err instanceof Error ? err.message : String(err)}`,
+        `WhatsApp template failed for booking ${booking.id}: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
   }

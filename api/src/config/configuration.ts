@@ -33,12 +33,21 @@ export default () => ({
   webhook: {
     verifyToken: process.env.WEBHOOK_VERIFY_TOKEN ?? '',
   },
+  metaWhatsApp: {
+    accessToken: process.env.WA_ACCESS_TOKEN ?? '',
+    phoneNumberId: process.env.PHONE_NUMBER_ID ?? '',
+    appSecret: process.env.META_APP_SECRET ?? '',
+    graphVersion: process.env.META_GRAPH_VERSION ?? 'v23.0',
+  },
   openai: {
     apiKey: process.env.OPENAI_API_KEY ?? '',
     model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
   },
   appointmentTemplate: {
-    contentSid: process.env.TWILIO_APPOINTMENT_TEMPLATE_SID ?? '',
+    contentSid:
+      process.env.WA_APPOINTMENT_TEMPLATE_NAME ??
+      process.env.TWILIO_APPOINTMENT_TEMPLATE_SID ??
+      '',
   },
   booking: {
     timezone: process.env.BOOKING_TIMEZONE ?? 'Europe/Berlin',

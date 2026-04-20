@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { BookingsService } from '../bookings/bookings.service';
 import { ChatsService, phoneFromWhatsapp } from '../chats/chats.service';
 import { OpenaiService } from '../openai/openai.service';
-import { TwilioService } from './twilio.service';
+import { MetaWhatsAppService } from './meta-whatsapp.service';
 
 function isConfirmationText(raw: string): boolean {
   const t = raw.trim().toUpperCase();
@@ -44,7 +44,7 @@ export class WhatsappWebhookController {
     private readonly config: ConfigService,
     private readonly chats: ChatsService,
     private readonly openai: OpenaiService,
-    private readonly twilio: TwilioService,
+    private readonly whatsapp: MetaWhatsAppService,
     private readonly bookings: BookingsService,
   ) {}
 
@@ -110,7 +110,7 @@ export class WhatsappWebhookController {
         const updated = await this.bookings.confirmLatestUnconfirmedForPhone(phoneE164);
         if (updated) {
           this.logger.log(`Booking ${updated.id} confirmed via WhatsApp for ${phoneE164}`);
-          const send = await this.twilio.sendSessionMessage(
+          const send = await this.whatsapp.sendSessionMessage(
             phoneE164,
             'Your appointment is confirmed. See you then!',
           );
@@ -122,7 +122,7 @@ export class WhatsappWebhookController {
           return { status: 'ok' as const };
         }
         try {
-          const nudge = await this.twilio.sendSessionMessage(
+          const nudge = await this.whatsapp.sendSessionMessage(
             phoneE164,
             'We could not find a pending appointment to confirm.',
           );
@@ -149,7 +149,7 @@ export class WhatsappWebhookController {
           clientNameHint: chat.name,
         },
       });
-      const send = await this.twilio.sendSessionMessage(chat.phoneE164, reply);
+      const send = await this.whatsapp.sendSessionMessage(chat.phoneE164, reply);
       await this.chats.appendOutbound(chat.id, reply, send.sid);
     } catch (err) {
       this.logger.error('WhatsApp AI reply failed', err);

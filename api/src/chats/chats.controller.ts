@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { ChatsService } from './chats.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { SendTemplateDto } from './dto/send-template.dto';
-import { TwilioService } from '../twilio/twilio.service';
+import { MetaWhatsAppService } from '../twilio/meta-whatsapp.service';
 
 @ApiTags('chats')
 @ApiBearerAuth()
@@ -25,7 +25,7 @@ import { TwilioService } from '../twilio/twilio.service';
 export class ChatsController {
   constructor(
     private readonly chats: ChatsService,
-    private readonly twilio: TwilioService,
+    private readonly whatsapp: MetaWhatsAppService,
     private readonly bookings: BookingsService,
     private readonly config: ConfigService,
   ) {}
@@ -53,9 +53,9 @@ export class ChatsController {
         within24h: false,
       });
     }
-    const res = await this.twilio.sendSessionMessage(chat.phoneE164, dto.body);
+    const res = await this.whatsapp.sendSessionMessage(chat.phoneE164, dto.body);
     await this.chats.appendOutbound(id, dto.body, res.sid);
-    return { ok: true, twilio: res };
+    return { ok: true, whatsapp: res };
   }
 
   @Post(':id/template-reminder')
@@ -64,7 +64,7 @@ export class ChatsController {
     if (!chat) throw new NotFoundException('Chat not found');
     const contentSid = this.config.get<string>('appointmentTemplate.contentSid');
     if (!contentSid) {
-      return { error: 'TWILIO_APPOINTMENT_TEMPLATE_SID not configured' };
+      return { error: 'WA_APPOINTMENT_TEMPLATE_NAME not configured' };
     }
     let v1 = dto.var1;
     let v2 = dto.var2;
@@ -80,7 +80,7 @@ export class ChatsController {
     if (!v1 || !v2) {
       return { error: 'Provide bookingId or var1 and var2 for template' };
     }
-    const res = await this.twilio.sendTemplate(chat.phoneE164, contentSid, {
+    const res = await this.whatsapp.sendTemplate(chat.phoneE164, contentSid, {
       '1': v1,
       '2': v2,
     });
@@ -89,6 +89,6 @@ export class ChatsController {
       `[Template reminder] ${v1} at ${v2}`,
       res.sid,
     );
-    return { ok: true, twilio: res };
+    return { ok: true, whatsapp: res };
   }
 }
