@@ -35,6 +35,15 @@ function firstFromArray(value: unknown): Record<string, unknown> | null {
   return asRecord(value[0]);
 }
 
+function safePayloadPreview(payload: unknown): string {
+  try {
+    const raw = JSON.stringify(payload);
+    return raw.length > 4000 ? `${raw.slice(0, 4000)}... [truncated]` : raw;
+  } catch {
+    return '[unserializable payload]';
+  }
+}
+
 @ApiExcludeController()
 @Controller('webhook')
 export class WhatsappWebhookController {
@@ -90,7 +99,9 @@ export class WhatsappWebhookController {
     const text = (metaText || twilioLikeText).trim();
     const messageSid = metaMessageId || twilioLikeSid;
     if (!from) {
-      this.logger.warn('Inbound webhook ignored: no sender found');
+      this.logger.warn(
+        `Inbound webhook ignored: no sender found. payload=${safePayloadPreview(body)}`,
+      );
       return { status: 'ignored' as const };
     }
     const phoneE164 = phoneFromWhatsapp(from);
