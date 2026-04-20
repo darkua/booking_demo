@@ -45,12 +45,14 @@ export default () => ({
   },
   appointmentTemplate: {
     contentSid:
+      process.env.WA_APPOINTMENT_CONFIRMATION ??
       process.env.WA_APPOINTMENT_TEMPLATE_NAME ??
       process.env.TWILIO_APPOINTMENT_TEMPLATE_SID ??
       '',
   },
   booking: {
     timezone: process.env.BOOKING_TIMEZONE ?? 'Europe/Berlin',
+    salonName: process.env.SALON_NAME ?? 'AltaRise Beauty Sallon',
   },
   /** Max prior WhatsApp turns (user+assistant pairs count as separate messages) sent to OpenAI */
   whatsappHistoryMaxMessages: parseInt(

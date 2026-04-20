@@ -108,9 +108,9 @@ export class BookingToolRunnerService {
           });
           return JSON.stringify({
             booking: b,
-            confirmationStatus: 'pending_customer_template',
+            confirmationStatus: 'pending_customer_confirmation',
             assistantInstruction:
-              'The booking exists but is NOT final until the customer confirms via the WhatsApp template (or CONFIRM/YES). In your next message: recap slot + services; ask them to confirm using that template message. Do not say the appointment is fully confirmed or use all-set / see-you-then as final.',
+              'The booking exists but is NOT final until the customer confirms (CONFIRM/YES). The system has already sent a pending-details WhatsApp message with date/time/services and confirmation instructions. In your next message: recap slot + services and ask them to confirm. Do not say the appointment is fully confirmed or use all-set / see-you-then as final.',
           });
         } catch (e: unknown) {
           return this.toolHttpFailure('create_booking', e);

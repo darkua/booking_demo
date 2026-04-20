@@ -13,7 +13,7 @@ import type { BookingFile } from './booking.types';
 import {
   bookingTimeZone,
   bookingWindowDiagnostics,
-  formatTemplateVars,
+  formatAppointmentTemplateVars,
   isStartWithinNextThreeCalendarDays,
   nextThreeLocalDaysUtcRangeIso,
 } from './booking-window.util';
@@ -168,18 +168,38 @@ export class BookingsService {
     this.debug(`write booking ${file}`);
     await this.state.atomicWriteJson(file, booking);
     if (data.sendConfirmationTemplate !== false) {
-      await this.sendConfirmationTemplate(booking);
+      await this.sendPendingConfirmationRequest(booking);
     }
     return booking;
   }
 
+  private async sendPendingConfirmationRequest(booking: BookingFile) {
+    const salonName = this.config.get<string>('booking.salonName') ?? 'AltaRise Beauty Sallon';
+    const vars = formatAppointmentTemplateVars(booking, this.tz(), salonName);
+    const body = [
+      `Hi ${vars['1']}, your appointment at ${vars['2']} is currently pending confirmation.`,
+      `Services: ${vars['3']}`,
+      `Day: ${vars['4']}`,
+      `Hour: ${vars['5']}`,
+      'Please reply CONFIRM to finalize your booking.',
+    ].join('\n');
+    try {
+      await this.whatsapp.sendSessionMessage(booking.phoneE164, body);
+    } catch (err: unknown) {
+      this.logger.error(
+        `Pending confirmation message failed for booking ${booking.id}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
   private async sendConfirmationTemplate(booking: BookingFile) {
     const contentSid = this.config.get<string>('appointmentTemplate.contentSid');
+    const salonName = this.config.get<string>('booking.salonName') ?? 'AltaRise Beauty Sallon';
     if (!contentSid) {
-      this.logger.warn('WA_APPOINTMENT_TEMPLATE_NAME not set; skip confirmation template');
+      this.logger.warn('WA_APPOINTMENT_CONFIRMATION not set; skip confirmation template');
       return;
     }
-    const vars = formatTemplateVars(booking.start, this.tz());
+    const vars = formatAppointmentTemplateVars(booking, this.tz(), salonName);
     try {
       await this.whatsapp.sendTemplate(booking.phoneE164, contentSid, vars);
       this.logger.log(`Confirmation template sent for booking ${booking.id}`);
@@ -238,7 +258,9 @@ export class BookingsService {
     if (!mine.length) return null;
     mine.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
     const latest = mine[0];
-    return this.patch(latest.id, { confirmed: true });
+    const confirmed = await this.patch(latest.id, { confirmed: true });
+    await this.sendConfirmationTemplate(confirmed);
+    return confirmed;
   }
 
   /** Marks booking as canceled; file is kept. Idempotent if already canceled. */

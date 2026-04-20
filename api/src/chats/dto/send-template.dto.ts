@@ -8,13 +8,28 @@ export class SendTemplateDto {
   @IsOptional()
   bookingId?: string;
 
-  @ApiProperty({ required: false, description: 'Twilio content variable 1 (date)' })
+  @ApiProperty({ required: false, description: 'Template var 1: customer name' })
   @IsOptional()
   @IsString()
   var1?: string;
 
-  @ApiProperty({ required: false, description: 'Twilio content variable 2 (time)' })
+  @ApiProperty({ required: false, description: 'Template var 2: salon name' })
   @IsOptional()
   @IsString()
   var2?: string;
+
+  @ApiProperty({ required: false, description: 'Template var 3: services list' })
+  @IsOptional()
+  @IsString()
+  var3?: string;
+
+  @ApiProperty({ required: false, description: 'Template var 4: day string' })
+  @IsOptional()
+  @IsString()
+  var4?: string;
+
+  @ApiProperty({ required: false, description: 'Template var 5: hour string' })
+  @IsOptional()
+  @IsString()
+  var5?: string;
 }

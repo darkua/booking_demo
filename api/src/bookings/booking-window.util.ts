@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import type { BookingFile } from './booking.types';
 
 export function bookingTimeZone(configured?: string): string {
   return configured?.trim() || 'Europe/Berlin';
@@ -43,15 +44,21 @@ export function bookingWindowDiagnostics(startIso: string, zone: string) {
   };
 }
 
-/** Template vars matching Twilio Content API examples: date M/D, time like 3pm */
-export function formatTemplateVars(
-  startIso: string,
+/** Template vars for Meta WA appointment template: 1=name, 2=salon, 3=services, 4=day, 5=hour. */
+export function formatAppointmentTemplateVars(
+  booking: Pick<BookingFile, 'clientName' | 'services' | 'start'>,
   zone: string,
-): { '1': string; '2': string } {
-  const z = DateTime.fromISO(startIso, { zone: 'utc' }).setZone(zone);
-  const v1 = `${z.month}/${z.day}`;
-  const v2 = z.toFormat('h:mma').replace(':00', '').toLowerCase();
-  return { '1': v1, '2': v2 };
+  salonName: string,
+): { '1': string; '2': string; '3': string; '4': string; '5': string } {
+  const z = DateTime.fromISO(booking.start, { zone: 'utc' }).setZone(zone);
+  const services = booking.services.join(', ');
+  return {
+    '1': booking.clientName,
+    '2': salonName,
+    '3': services,
+    '4': z.toFormat('cccc, d LLL'),
+    '5': z.toFormat('HH:mm'),
+  };
 }
 
 /** UTC ISO range covering the next 3 local calendar days [startOfToday, startOfToday+3) */

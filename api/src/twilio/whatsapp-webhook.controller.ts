@@ -110,15 +110,6 @@ export class WhatsappWebhookController {
         const updated = await this.bookings.confirmLatestUnconfirmedForPhone(phoneE164);
         if (updated) {
           this.logger.log(`Booking ${updated.id} confirmed via WhatsApp for ${phoneE164}`);
-          const send = await this.whatsapp.sendSessionMessage(
-            phoneE164,
-            'Your appointment is confirmed. See you then!',
-          );
-          await this.chats.appendOutbound(
-            chat.id,
-            'Your appointment is confirmed.',
-            send.sid,
-          );
           return { status: 'ok' as const };
         }
         try {
